@@ -3,127 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>과고 스포츠 리그 통합 대진표 - 부장판</title>
+    <title>과고 스포츠 리그 - 공유 에디션 (완결)</title>
+    
     <style>
-        /* 기본 디자인 (이전 답변 내용 반영) */
-        body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; transition: 0.3s;}
         
-        /* 타이틀 수정 부분 */
-        h1 { text-align: center; color: #1a237e; margin-bottom: 5px; }
+        h1 { text-align: center; color: #1a237e; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        
+        /* 👀 읽기 전용 모드 뱃지 디자인 */
+        #readonly-badge { font-size: 14px; color: white; background-color: #7f8c8d; padding: 4px 10px; border-radius: 12px; font-weight: bold; vertical-align: middle; display: none; }
+        
         .subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 14px; }
         
-        /* 탭 메뉴 디자인 */
         .tab-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
         .tab-btn { padding: 8px 15px; font-size: 14px; font-weight: bold; border: 1px solid #ccc; border-radius: 20px; background-color: white; cursor: pointer; transition: 0.2s; }
         .tab-btn:hover { background-color: #e3f2fd; }
         .tab-btn.active { background-color: #1a237e; color: white; border-color: #1a237e; }
 
-        /* 메인 작업 영역 */
         .main-content { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h2 { border-bottom: 2px solid #1a237e; padding-bottom: 10px; color: #1a237e; display: flex; justify-content: space-between; align-items: center; }
+        h2 { border-bottom: 2px solid #1a237e; padding-bottom: 10px; color: #1a237e; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;}
         
         /* 입력 영역 */
         .input-section { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; }
         textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; box-sizing: border-box; }
-        .btn-group { margin-top: 10px; display: flex; gap: 10px; }
-        button.action-btn { background-color: #3498db; color: white; border: none; padding: 10px 15px; font-size: 14px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-group { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        /* 버튼 디자인 */
+        button.action-btn { background-color: #3498db; color: white; border: none; padding: 10px 15px; font-size: 14px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         button.action-btn:hover { background-color: #2980b9; }
+        
+        /* ✨ 🔗 공유 링크 복사 버튼 디자인 (진한 하늘색) ✨ */
+        button.share-btn { background-color: #0097a7; margin-left: auto; }
+        button.share-btn:hover { background-color: #006064; }
+        
         button.reset-btn { background-color: #e74c3c; font-size: 12px; padding: 5px 10px; }
         button.reset-btn:hover { background-color: #c0392b; }
 
-        /* 대진표 디자인 업그레이드 (가로 스크롤 지원) */
-        .bracket-wrapper { display: flex; overflow-x: auto; padding: 20px 0; gap: 40px; }
-        .round { display: flex; flex-direction: column; justify-content: space-around; min-width: 200px; gap: 20px; position: relative; }
-        .round-title { text-align: center; font-weight: bold; color: white; margin-bottom: 15px; background: #1a237e; padding: 8px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        /* 대진표 영역 */
+        .bracket-scroll-area { overflow-x: auto; padding: 20px 0; position: relative; }
+        .bracket-wrapper { display: flex; gap: 50px; position: relative; min-width: max-content; padding: 15px; }
         
-        .match { background: #fff; border: 2px solid #34495e; border-radius: 8px; overflow: hidden; box-shadow: 3px 3px 0px rgba(52, 73, 94, 0.2); }
-        .player { padding: 10px 12px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 14px; transition: 0.2s; min-height: 20px; font-weight: 500; }
+        /* 초록색 연결선 */
+        #line-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+        .round { display: flex; flex-direction: column; justify-content: space-around; min-width: 200px; gap: 20px; position: relative; z-index: 1; }
+        
+        /* ✨ 라운드 제목 디자인 수정 ✨ */
+        .round-title { text-align: center; font-weight: 800; color: #1a237e; margin-bottom: 15px; background: #e3f2fd; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 16px; text-transform: uppercase; letter-spacing: 1px;}
+        
+        /* 매치 상자 디자인 */
+        .match { background: #fff; border: 2px solid #34495e; border-radius: 8px; overflow: hidden; box-shadow: 3px 3px 0px rgba(52, 73, 94, 0.2); position: relative; }
+        .player { padding: 10px 12px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 14px; transition: 0.2s; min-height: 20px; font-weight: 600; }
         .player:last-child { border-bottom: none; }
         .player:hover { background: #f1f2f6; }
         
-        /* 이긴 사람 색상 강조 (왼쪽 초록색 바 추가) */
+        /* 이긴 사람 색상 (초록색) */
         .player.winner { background: #e8f5e9; color: #2e7d32; font-weight: 900; border-left: 5px solid #2e7d32; }
-        .player.empty { color: #aaa; font-style: italic; }
-        .player.bye { color: #7f8c8d; background: #ecf0f1; cursor: default; }
+        .player.empty { color: #aaa; font-style: italic; font-weight: 400; }
+        .player.bye { color: #7f8c8d; background: #ecf0f1; cursor: default; font-weight: 400; }
 
-        /* ✨ 마지막 우승칸 화려한 디자인 ✨ */
-        .final-winner-card {
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* 깔끔한 베이스 */
-            border: 4px solid #f1c40f; /* 황금색 테두리 */
-            border-radius: 12px;
-            padding: 30px 20px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(241, 196, 15, 0.3); /* 황금빛 그림자 */
-            position: relative;
-            overflow: hidden;
-            transition: all 0.5s ease-out; /* 등장 애니메이션 효과용 */
-        }
+        /* 👀 읽기 전용 모드일 때 클릭/호버 방지 CSS 👀 */
+        body.readonly .player { cursor: default !important; }
+        body.readonly .player:hover { background: #fff !important; }
+        body.readonly .player.winner:hover { background: #e8f5e9 !important; }
+        body.readonly .player.bye:hover { background: #ecf0f1 !important; }
 
-        /* 우승칸 미세한 반짝임 효과 (배경) */
-        .final-winner-card::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background-image: radial-gradient(circle, #f1c40f 10%, transparent 20%), radial-gradient(circle, #f39c12 10%, transparent 20%);
-            background-position: 0 0, 15px 15px;
-            background-size: 30px 30px;
-            opacity: 0.05;
-            animation: sparkles 10s linear infinite;
-        }
-
-        @keyframes sparkles {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* 우승 아이콘/라벨 */
-        .final-winner-card .crown-icon { font-size: 50px; margin-bottom: 15px; display: block; }
-        .final-winner-card .winner-label { color: #f39c12; font-weight: bold; font-size: 18px; margin-bottom: 5px; }
+        /* ✨ 우승칸 디자인 수정 (제목 없음, 더 화려하게) ✨ */
+        .final-winner-round { gap: 0; justify-content: center;} /* 제목 칸 없어서 갭 조정 */
         
-        /* 진짜 우승자 이름 (크게) */
-        .final-winner-card .winner-name {
-            font-size: 28px;
-            font-weight: 900;
-            color: #1a237e;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        .final-winner-card {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            border: 4px solid #f1c40f; border-radius: 12px; padding: 30px 20px;
+            text-align: center; box-shadow: 0 10px 20px rgba(241, 196, 15, 0.3);
+            position: relative; overflow: hidden;
+            animation: winnerGlow 2s infinite alternate;
+        }
+        
+        @keyframes winnerGlow {
+            0% { box-shadow: 0 10px 20px rgba(241, 196, 15, 0.3); }
+            100% { box-shadow: 0 10px 30px rgba(241, 196, 15, 0.6); }
         }
 
-        /* 우승자가 결정될 때 서서히 나타나는 효과 클래스 */
-        .winner-pop { animation: winnerPop 0.5s ease; }
-        @keyframes winnerPop {
-            0% { transform: scale(0.5); opacity: 0; }
-            70% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        .final-winner-card .crown-icon { font-size: 60px; margin-bottom: 15px; display: block; }
+        .final-winner-card .winner-label { color: #f39c12; font-weight: bold; font-size: 20px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px;}
+        .final-winner-card .winner-name { font-size: 32px; font-weight: 900; color: #1a237e; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);}
     </style>
 </head>
 <body>
 
-    <h1>
-        🏆 충곽 스포츠 리그 대진표
-        <span style="font-size: 16px; color: #7f8c8d; font-weight: normal; vertical-align: middle; margin-left: 10px;">Made by 31대 학생회 체육건강부 부장</span>
-    </h1>
-    <div class="subtitle">수정된 내용은 브라우저에 자동 저장됩니다. (화면을 캡처하여 학생들에게 공유하세요!)</div>
+    <h1>🏆 충곽 스포츠 리그 대진표 <span id="readonly-badge">👀 [읽기 전용 모드]</span></h1>
+    <div class="subtitle" id="subtitle-text">결과 내용은 자동 저장됩니다. 대진표를 완성하고 [공유 링크 복사] 버튼을 누르세요!</div>
 
     <div class="tab-container" id="tabs"></div>
 
     <div class="main-content">
         <h2>
             <span id="current-sport-title">종목</span>
-            <button class="action-btn reset-btn" onclick="resetCurrentSport()">현재 종목 초기화</button>
+            <button class="action-btn share-btn" id="share-link-btn" onclick="copyShareLink()">🔗 학생용 공유 링크 복사</button>
+            <button class="action-btn reset-btn admin-only" id="reset-current-btn" onclick="resetCurrentSport()">현재 종목 초기화</button>
         </h2>
         
-        <div class="input-section" id="setup-area">
-            <p style="margin-top:0; font-size:14px; color:#555;">참가자(팀) 이름을 <b>엔터(줄바꿈)</b>로 구분하여 입력하세요. (최대 128팀)</p>
-            <textarea id="player-input" placeholder="1반 홍길동&#10;2반 김철수&#10;3반 이영희"></textarea>
+        <div class="input-section admin-only" id="setup-area">
+            <textarea id="player-input" placeholder="1반 홍길동&#10;2반 김철수"></textarea>
             <div class="btn-group">
-                <button class="action-btn" onclick="generateBracket()">랜덤 대진표 생성하기</button>
+                <button class="action-btn" id="generate-bracket-btn" onclick="generateBracket()">랜덤 대진표 생성하기</button>
             </div>
         </div>
 
         <div id="bracket-area" style="display: none;">
-            <div style="font-size:14px; color:#e74c3c; margin-bottom: 15px; font-weight:bold;">👉 승리한 팀을 클릭하면 다음 라운드로 진출합니다! (수정 시 클릭하면 취소됩니다)</div>
-            <div class="bracket-wrapper" id="bracket-container"></div>
+            <div style="font-size:13px; color:#e74c3c; margin-bottom: 15px; font-weight:bold;" class="admin-only">👉 승리한 팀을 클릭하면 다음 라운드로 진출합니다!</div>
+            <div class="bracket-scroll-area">
+                <div class="bracket-wrapper" id="bracket-wrapper">
+                    <svg id="line-canvas"></svg>
+                    <div id="bracket-container" style="display: flex; gap: 50px;"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -133,24 +127,44 @@
         "탁구 - 남단", "탁구 - 여단", "탁구 - 남복", "탁구 - 여복", "탁구 - 혼복"
     ];
     let currentSport = sportsList[0];
-    let leagueData = {}; // 모든 종목 데이터 저장 객체
+    let leagueData = {}; 
+    
+    // 👀 👀 👀 [읽기 전용 모드] 플래그 👀 👀 👀
+    let isReadOnly = false; 
 
-    // 1. 브라우저에서 데이터 불러오기
+    // 1. 데이터 로드 (관리자 로컬저장소 or 공유된 URL 데이터)
     function loadData() {
-        const saved = localStorage.getItem('science_high_league_data');
-        if (saved) {
-            leagueData = JSON.parse(saved);
+        // 👀 URL 파라미터 확인 (?data=... 확인)
+        const urlParams = new URLSearchParams(window.location.search);
+        const sharedData = urlParams.get('data');
+
+        if (sharedData) {
+            // 👀 공유 모드 활성화 (로컬 저장소 무시, 입력 무시) 👀
+            isReadOnly = true;
+            try {
+                leagueData = decompressLeagueData(sharedData); // 데이터 압축 해제
+                sportsList.forEach(s => { if(leagueData[s] === undefined) leagueData[s] = null; }); // 혹시 누락된 종목 처리
+            } catch (error) {
+                console.error('공유 데이터 로딩 실패:', error);
+                alert('🚫 유효하지 않거나 깨진 공유 링크입니다.\n관리자에게 문의하세요.');
+                // 실패 시 로컬로 돌아가지 않고 그냥 빈 데이터 보여줌
+                sportsList.forEach(s => leagueData[s] = null);
+            }
         } else {
-            sportsList.forEach(s => leagueData[s] = null); // 빈 데이터 생성
+            // 관리자 모드 (로컬 저장소 사용)
+            isReadOnly = false;
+            const saved = localStorage.getItem('CNSH_LEAGUE_绿色线_공유_완결'); // 저장 키 변경 (충돌 방지)
+            if (saved) leagueData = JSON.parse(saved);
+            else sportsList.forEach(s => leagueData[s] = null);
         }
     }
 
-    // 2. 브라우저에 데이터 저장하기
-    function saveData() {
-        localStorage.setItem('science_high_league_data', JSON.stringify(leagueData));
+    function saveData() { 
+        if(isReadOnly) return; // 읽기 전용일 땐 저장 안 함
+        localStorage.setItem('CNSH_LEAGUE_绿色线_공유_완결', JSON.stringify(leagueData)); 
     }
 
-    // 3. 탭(메뉴) 그리기
+    // 2. UI 초기 설정 (읽기 전용 모드에 따른 변화 포함)
     function renderTabs() {
         const tabContainer = document.getElementById('tabs');
         tabContainer.innerHTML = '';
@@ -163,71 +177,84 @@
         });
     }
 
-    // 4. 화면 업데이트 (종목 바꿀 때 실행)
     function updateView() {
         renderTabs();
         document.getElementById('current-sport-title').innerText = currentSport;
         
+        // 👀 👀 👀 읽기 전용 모드 UI 처리 👀 👀 👀
+        if (isReadOnly) {
+            document.body.classList.add('readonly'); // CSS 제어용 클래스 추가
+            document.getElementById('readonly-badge').style.display = 'inline-block'; // 뱃지 보여줌
+            document.getElementById('subtitle-text').innerText = '학생용 공유 링크로 접속했습니다. 수정할 수 없습니다.'; // 서브타이틀 변경
+            document.getElementById('share-link-btn').style.display = 'none'; // 공유 버튼 숨김 (이미 공유 상태니)
+            
+            // "admin-only" 클래스 가진 요소 싹 숨김
+            const adminOnlyElements = document.querySelectorAll('.admin-only');
+            adminOnlyElements.forEach(el => el.style.display = 'none');
+        } else {
+            document.body.classList.remove('readonly');
+            document.getElementById('readonly-badge').style.display = 'none';
+        }
+        
         const sportData = leagueData[currentSport];
         if (sportData) {
-            // 대진표가 생성되어 있으면 보여주기
             document.getElementById('setup-area').style.display = 'none';
             document.getElementById('bracket-area').style.display = 'block';
             renderBracket(sportData);
         } else {
-            // 대진표가 없으면 입력창 보여주기
-            document.getElementById('setup-area').style.display = 'block';
+            // 관리자 모드에서만 입력창 보여줌
+            if(!isReadOnly) {
+                document.getElementById('setup-area').style.display = 'block';
+                document.getElementById('player-input').value = '';
+            } else {
+                // 부장님이 데이터를 안 입력한 종목을 학생들이 공유링크로 보면 그냥 빈 화면
+                document.getElementById('setup-area').style.display = 'none';
+                alert('🚫 이 종목은 아직 대진표가 생성되지 않았습니다.');
+            }
             document.getElementById('bracket-area').style.display = 'none';
-            document.getElementById('player-input').value = '';
             document.getElementById('bracket-container').innerHTML = '';
+            document.getElementById('line-canvas').innerHTML = ''; 
         }
     }
 
-    // 5. 대진표 생성 로직 (128강 대응)
+    // 3. 대진표 생성 로직 (128강 대응)
     function generateBracket() {
+        if(isReadOnly) return alert('🚫 읽기 전용 모드에서는 대진표를 생성할 수 없습니다.');
+        
         const input = document.getElementById('player-input').value.trim();
-        if (!input) { alert('참가자를 입력해주세요!'); return; }
-        
+        if (!input) return alert('🚫 참가자를 입력해주세요!');
         let players = input.split('\n').map(p => p.trim()).filter(p => p !== '');
-        
         let targetSize = 2;
-        while (targetSize < players.length) { targetSize *= 2; }
-        if (targetSize > 128) { alert('최대 128명까지만 지원합니다!'); return; }
+        while (targetSize < players.length) targetSize *= 2;
+        if (targetSize > 128) return alert('🚫 최대 128명까지만 지원합니다!');
 
-        while (players.length < targetSize) { players.push('부전승'); } // 부전승 채우기
-        players.sort(() => Math.random() - 0.5); // 🎲 랜덤 섞기 원리
+        while (players.length < targetSize) players.push('부전승');
+        players.sort(() => Math.random() - 0.5);
 
         const roundsCount = Math.log2(targetSize);
         let rounds = [];
         
-        // 1라운드(첫 경기) 세팅
         let firstRoundMatches = [];
-        for(let i=0; i<targetSize; i+=2) {
-            firstRoundMatches.push({ p1: players[i], p2: players[i+1], winner: null });
-        }
+        for(let i=0; i<targetSize; i+=2) firstRoundMatches.push({ p1: players[i], p2: players[i+1], winner: null });
         rounds.push(firstRoundMatches);
 
-        // 나머지 라운드(빈 칸) 세팅
-        for(let r=1; r<=roundsCount; r++) { // r=r+1;
+        for(let r=1; r<=roundsCount; r++) {
             let numMatches = targetSize / Math.pow(2, r+1);
             let roundMatches = [];
-            for(let i=0; i<numMatches; i++) { roundMatches.push({ p1: null, p2: null, winner: null }); }
+            for(let i=0; i<numMatches; i++) roundMatches.push({ p1: null, p2: null, winner: null });
             if (numMatches > 0) rounds.push(roundMatches);
         }
-
-        // 마지막 우승자 칸 단독 추가
         rounds.push([{ p1: null }]); 
 
         leagueData[currentSport] = { rounds: rounds };
         saveData();
-        autoAdvanceByes(); // 부전승 자동 진출
+        autoAdvanceByes();
         updateView();
     }
 
-    // 6. 부전승 자동 진출 처리
     function autoAdvanceByes() {
         const rounds = leagueData[currentSport].rounds;
-        if(rounds.length > 1) { // 데이터 구조가 올바를 때만
+        if(rounds.length > 1) {
             rounds[0].forEach((match, index) => {
                 if (match.p1 === '부전승' && match.p2 !== '부전승' && match.p2 !== '?') setWinner(0, index, match.p2);
                 else if (match.p2 === '부전승' && match.p1 !== '부전승' && match.p1 !== '?') setWinner(0, index, match.p1);
@@ -235,31 +262,34 @@
         }
     }
 
-    // 7. 대진표 화면에 그리기 (우승 효과 포함)
+    // 4. 대진표 화면에 그리기 (UI 수정 요청 반영 완결)
     function renderBracket(data) {
         const container = document.getElementById('bracket-container');
         container.innerHTML = '';
-        
         const totalRounds = data.rounds.length;
 
         data.rounds.forEach((roundMatches, rIndex) => {
             const roundDiv = document.createElement('div');
             roundDiv.className = 'round';
             
-            // 라운드 이름 결정
+            // ✨ 라운드 제목 결정 로직 수정 ✨
             let roundName = (roundMatches.length * 2) + "강";
-            if(roundMatches.length === 1 && rIndex === totalRounds - 2) roundName = "결승";
             
-            // --- 화려한 우승칸 특별 렌더링 ---
+            // 결승 경기 (딱 한 경기 있는 라운드)
+            if(roundMatches.length === 1 && rIndex === totalRounds - 2) {
+                roundName = "🏆 결승전"; //처럼 "결승" 제목 사용
+            }
+            
+            // --- ✨ 화려한 우승칸 특별 렌더링 (제목 없음) ✨ ---
             if (rIndex === totalRounds - 1) { 
-                roundDiv.innerHTML = `<div class="round-title">우승 🏆</div>`;
-                const winnerData = roundMatches[0]; // 데이터 가져오기 (generateBracket 구조)
-                const winnerName = winnerData.p1; 
+                roundDiv.classList.add('final-winner-round'); // 전용 클래스 추가 (제목 칸 없애기)
+                // 우승자 데이터 가져오기 (generateBracket 구조 상 rIndex totalRounds-1의 p1에 우승자 이름 저장됨)
+                const winnerName = roundMatches[0].p1; 
 
                 const winnerCard = document.createElement('div');
-                // 이름이 있을 때만 winner-pop 애니메이션 추가
-                winnerCard.className = 'final-winner-card ' + (winnerName ? 'winner-pop' : '');
-                
+                winnerCard.className = 'final-winner-card match' + (winnerName ? ' winner-pop' : ''); // 애니메이션 효과용 winner-pop 나중에 추가 예정
+                winnerCard.style.border = 'none'; // 테두리 제거 (디자인)
+
                 winnerCard.innerHTML = `
                     <span class="crown-icon">👑</span>
                     <div class="winner-label">CHAMPION</div>
@@ -273,9 +303,10 @@
                 roundMatches.forEach((match, mIndex) => {
                     const matchDiv = document.createElement('div');
                     matchDiv.className = 'match';
-                    
                     const p1Class = match.p1 === '부전승' ? 'bye' : (!match.p1 ? 'empty' : (match.winner === match.p1 ? 'winner' : ''));
                     const p2Class = match.p2 === '부전승' ? 'bye' : (!match.p2 ? 'empty' : (match.winner === match.p2 ? 'winner' : ''));
+
+                    // 👀 👀 👀처럼 직관적인 디자인을 위해 결승전 경기는 테두리를 더 굵게 할 수도 있음 (옵션) 👀 👀 👀
 
                     matchDiv.innerHTML = `
                         <div class="player ${p1Class}" onclick="handlePlayerClick(${rIndex}, ${mIndex}, 1)">${match.p1 || '?'}</div>
@@ -286,39 +317,80 @@
             }
             container.appendChild(roundDiv);
         });
+
+        // 렌더링이 끝난 후 선을 그리기 위해 약간의 딜레이
+        setTimeout(drawConnectingLines, 50);
     }
 
-    // 8. 선수 클릭 시 승리/취소 처리
+    // 5. 선 긋는 함수 (안정적인 초록색)
+    function drawConnectingLines() {
+        const svg = document.getElementById('line-canvas');
+        svg.innerHTML = ''; 
+        
+        const wrapper = document.getElementById('bracket-wrapper');
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const rounds = document.querySelectorAll('.round');
+
+        for (let r = 0; r < rounds.length - 1; r++) {
+            const matches = rounds[r].querySelectorAll('.match');
+            const nextMatches = rounds[r+1].querySelectorAll('.match');
+            
+            matches.forEach((match, i) => {
+                const nextMatch = nextMatches[Math.floor(i/2)];
+                if (!nextMatch) return;
+                
+                const rect1 = match.getBoundingClientRect();
+                const startX = rect1.right - wrapperRect.left;
+                const startY = rect1.top + (rect1.height / 2) - wrapperRect.top;
+                
+                const rect2 = nextMatch.getBoundingClientRect();
+                const endX = rect2.left - wrapperRect.left;
+                const endY = rect2.top + (rect2.height / 2) - wrapperRect.top;
+                
+                const midX = startX + (endX - startX) / 2;
+                const pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
+                
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', pathData);
+                
+                // ✨ 선 색상: 이긴 사람 박스 색과 동일한 초록색(#2e7d32) ✨
+                path.setAttribute('stroke', '#2e7d32'); 
+                path.setAttribute('stroke-width', '3'); 
+                path.setAttribute('fill', 'none');
+                
+                svg.appendChild(path);
+            });
+        }
+    }
+
+    // 6. 선수 클릭 시 승리/취소 처리 (관리자 모드 전용)
     function handlePlayerClick(rIndex, mIndex, playerNum) {
+        if(isReadOnly) return; // 👀 읽기 전용 모드에서는 클릭 차단
+
         const data = leagueData[currentSport];
         const match = data.rounds[rIndex][mIndex];
         const clickedPlayer = playerNum === 1 ? match.p1 : match.p2;
 
         if (!clickedPlayer || clickedPlayer === '?' || clickedPlayer === '부전승') return;
-
-        if (match.winner === clickedPlayer) { // 취소
-            setWinner(rIndex, mIndex, null);
-        } else { // 승리
-            setWinner(rIndex, mIndex, clickedPlayer);
-        }
+        if (match.winner === clickedPlayer) setWinner(rIndex, mIndex, null);
+        else setWinner(rIndex, mIndex, clickedPlayer);
     }
 
     function setWinner(rIndex, mIndex, winnerName) {
+        if(isReadOnly) return; // 👀 저장 차단
+
         const data = leagueData[currentSport];
         data.rounds[rIndex][mIndex].winner = winnerName;
 
-        // 다음 라운드로 데이터 전송
         if (rIndex + 1 < data.rounds.length) {
-            
-            // 결승전 직후 (우승자 특별 칸으로 전송)
+            // 결승전 직후 (우승자 특별 칸으로 전송)구조 상 rIndex === data.rounds.length - 2
             if (rIndex === data.rounds.length - 2) { 
-                 data.rounds[rIndex + 1][0].p1 = winnerName; // 우승자 칸의 p1 데이터에 이름 넣기
+                 data.rounds[rIndex + 1][0].p1 = winnerName;
             } else {
-                // 일반 라운드 전송
                 const nextMatchIndex = Math.floor(mIndex / 2);
                 const isPlayer1 = mIndex % 2 === 0;
                 
-                if (winnerName === null) { // 취소하는 경우 다음 칸도 비우기
+                if (winnerName === null) { 
                     if (isPlayer1) data.rounds[rIndex + 1][nextMatchIndex].p1 = null;
                     else data.rounds[rIndex + 1][nextMatchIndex].p2 = null;
                     data.rounds[rIndex + 1][nextMatchIndex].winner = null; 
@@ -328,24 +400,59 @@
                 }
             }
         }
-
-        saveData(); // 데이터 자동 저장 원리
+        saveData(); 
         updateView(); 
     }
 
-    // 9. 현재 종목 초기화
+    // 7. 현재 종목 초기화 (관리자 모드 전용)
     function resetCurrentSport() {
-        if(confirm(`정말 [${currentSport}] 대진표를 초기화하시겠습니까?\n복구할 수 없습니다!`)) {
+        if(isReadOnly) return alert('🚫 읽기 전용 모드에서는 데이터를 초기화할 수 없습니다.');
+
+        if(confirm(`정말 [${currentSport}] 대진표를 초기화하시겠습니까?`)) {
             leagueData[currentSport] = null;
             saveData();
             updateView();
         }
     }
 
-    // 앱 시작 (브라우저 창 열릴 때)
-    loadData();
-    updateView();
+    // 💻💻💻💻💻 하이라이트: 공유 링크 마법 함수들 💻💻💻💻💻
 
+    // ✨✨ 🔗 마법의 학생용 공유 링크 복사 함수 ✨✨
+    function copyShareLink() {
+        // 1. 현재 관리자의 10개 종목 모든 데이터를 JSON 문자열로 압축
+        const dataStr = JSON.stringify(leagueData);
+        
+        // 2. 이 거대한 문자열을 URL에 담을 수 있게 특수 부호로 압축/변환 (Base64 + encodeURIComponent 활용)
+        const compressedData = btoa(encodeURIComponent(dataStr)); // UTF-8 한글 이름 대응
+        
+        // 3. 현재 사이트 주소 뒤에 ?data=... 꼬리표 붙이기
+        const currentUrl = window.location.href.split('?')[0]; // 기존 파라미터 날림
+        const shareUrl = `${currentUrl}?data=${compressedData}`;
+        
+        // 4. 클립보드에 복사 마법!
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert(`✅ 학생용 공유 링크가 클립보드에 복사되었습니다!\n\n${sportsList.length}개 종목의 부전승, 경기 결과가 모두 포함되어 있습니다.\n\n단톡방에 붙여넣기하세요.\n(🚫 학생들이 내용을 수정할 수 없습니다.)`);
+        }).catch(err => {
+            console.error('클립보드 복사 실패:', err);
+            prompt('🚫 자동으로 복사하지 못했습니다. 아래 링크를 직접 복사해서 공유하세요:', shareUrl);
+        });
+    }
+
+    // 🔗✨ 공유된 압축 데이터를 다시 푸는 함수 (loadData에서 사용)
+    function decompressLeagueData(compressedStr) {
+        // URL에서 받은 압축된 텍스트를 다시 UTF-8 JSON 문자열로 해제
+        const decompressedJSON = decodeURIComponent(atob(compressedStr));
+        return JSON.parse(decompressedJSON);
+    }
+
+    // 창 크기가 변할 때 선 다시 그리기
+    window.addEventListener('resize', () => {
+        if(leagueData[currentSport]) drawConnectingLines();
+    });
+
+    // 시작
+    loadData(); // local storage or shared URL data 로드
+    updateView(); // UI 렌더링 (admin or readonly UI 결정)
 </script>
 </body>
 </html>
